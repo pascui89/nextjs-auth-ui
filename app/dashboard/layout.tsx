@@ -1,4 +1,3 @@
-import type React from "react"
 import { AppShell } from "@/components/ui-kit/app-shell"
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
