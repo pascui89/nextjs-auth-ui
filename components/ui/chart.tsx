@@ -1,5 +1,4 @@
 import type * as React from "react"
-
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface ChartTooltipContentProps {
@@ -9,7 +8,7 @@ interface ChartTooltipContentProps {
   payload?: any
 }
 
-export function ChartTooltipContent({
+function ChartTooltipContent({
   label,
   valueFormatter = (value) => value.toLocaleString(),
   itemFormatter,
@@ -20,32 +19,32 @@ export function ChartTooltipContent({
   }
 
   return (
+    <div className="rounded-md border bg-popover p-4 text-popover-foreground shadow-sm">
+      {label ? <div className="text-sm font-medium capitalize">{label}</div> : null}
+      <ul className="mt-2 space-y-1">
+        {payload.map((item: any, index: number) => (
+          <li key={index} className="flex items-center justify-between text-xs">
+            <span className="mr-2">{item.name || "Value"}:</span>
+            <span>{valueFormatter(item.value)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+interface ChartTooltipProps {
+  content: React.ReactNode
+}
+
+function ChartTooltip({ content }: ChartTooltipProps) {
+  return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="rounded-md border bg-popover p-4 text-popover-foreground shadow-sm">
-            {label ? <div className="text-sm font-medium capitalize">{label}</div> : null}
-            <ul className="mt-2 space-y-1">
-              {payload.map((item: any, index: number) => (
-                <li key={index} className="flex items-center justify-between text-xs">
-                  <span className="mr-2">{item.name || "Value"}:</span>
-                  <span>{valueFormatter(item.value)}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div>{content}</div>
         </TooltipTrigger>
-        <TooltipContent sideOffset={8}>
-          {label ? <div className="text-sm font-medium capitalize">{label}</div> : null}
-          <ul className="mt-2 space-y-1">
-            {payload.map((item: any, index: number) => (
-              <li key={index} className="flex items-center justify-between text-xs">
-                <span className="mr-2">{item.name || "Value"}:</span>
-                <span>{valueFormatter(item.value)}</span>
-              </li>
-            ))}
-          </ul>
-        </TooltipContent>
+        <TooltipContent sideOffset={8}>{content}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )
@@ -75,5 +74,4 @@ export function Chart({ data, children, valueFormatter }: ChartProps) {
   return <>{children}</>
 }
 
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger }
-
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, ChartTooltipContent, ChartTooltip }

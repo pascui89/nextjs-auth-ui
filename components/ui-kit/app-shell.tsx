@@ -37,7 +37,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-full">
         <Sidebar>
           <SidebarHeader className="flex items-center justify-between p-4">
             <Link href="/" className="flex items-center gap-2">
