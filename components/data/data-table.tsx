@@ -1,199 +1,255 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useSearchParams, useRouter, usePathname } from "next/navigation"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Pagination } from "@/components/ui-kit/pagination"
-import { type DataItem, queryData, type DataQueryParams } from "@/lib/data-service"
-import { formatDistanceToNow, format } from "date-fns"
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react"
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import { SortableHeaderClient } from "@/components/data/sortable-header-client";
+import { PaginationClient } from "@/components/data/pagination-client";
+import { useState, useEffect } from "react";
+import { queryData, DataQueryParams } from "@/lib/data-service";
+import { DataItem } from "@/types/data";
 
-export async function DataTable() {
-  const searchParams = useSearchParams()
+interface DataTableProps {
+  data: Array<{
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+    role: string;
+    lastActive: Date;
+    joinedAt: Date;
+    country: string;
+    city: string;
+    transactions: number;
+    revenue: number;
+  }>;
+  total: number;
+  page: number;
+  pageSize: number;
+}
 
-  // Parse query parameters
-  const page = Number.parseInt(searchParams.get("page") || "1")
-  const pageSize = Number.parseInt(searchParams.get("pageSize") || "10")
-  const sortBy = searchParams.get("sortBy") || "joinedAt"
-  const sortOrder = (searchParams.get("sortOrder") || "desc") as "asc" | "desc"
+export function DataTable({ total, page, pageSize }: DataTableProps) {
+  const [data, setData] = useState<DataItem[]>([]);
+  const [currentSort, setCurrentSort] = useState<string>("id");
+  const [currentOrder, setCurrentOrder] = useState<"asc" | "desc">("asc");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // Parse filters
-  const statusFilter = searchParams.getAll("status")
-  const roleFilter = searchParams.getAll("role")
-  const countryFilter = searchParams.getAll("country")
-  const searchFilter = searchParams.get("search") || ""
+  // Función para cargar los datos
+  const fetchData = () => {
+    setLoading(true);
 
-  // Prepare query params
-  const queryParams: DataQueryParams = {
-    page,
-    pageSize,
-    sortBy,
-    sortOrder,
-    filters: {
-      status: statusFilter.length > 0 ? (statusFilter as DataItem["status"][]) : undefined,
-      role: roleFilter.length > 0 ? (roleFilter as DataItem["role"][]) : undefined,
-      country: countryFilter.length > 0 ? countryFilter : undefined,
-      search: searchFilter || undefined,
-    },
-  }
+    const params: DataQueryParams = {
+      page,
+      pageSize,
+      sortBy: currentSort,
+      sortOrder: currentOrder,
+    };
 
-  // Fetch data
-  const result = await queryData(queryParams)
+    queryData(params)
+      .then((result) => {
+        setData(result.data);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  // Llamar a fetchData cuando cambien los parámetros de ordenación o paginación
+  useEffect(() => {
+    fetchData();
+  }, [currentSort, currentOrder, page, pageSize]);
+
+  const handleSort = (name: string) => {
+    if (currentSort === name) {
+      setCurrentOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+    } else {
+      setCurrentSort(name);
+      setCurrentOrder("asc");
+    }
+  };
 
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <SortableHeader name="id" currentSort={sortBy} currentOrder={sortOrder}>
-                  ID
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="name" currentSort={sortBy} currentOrder={sortOrder}>
-                  Name
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="email" currentSort={sortBy} currentOrder={sortOrder}>
-                  Email
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="status" currentSort={sortBy} currentOrder={sortOrder}>
-                  Status
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="role" currentSort={sortBy} currentOrder={sortOrder}>
-                  Role
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="country" currentSort={sortBy} currentOrder={sortOrder}>
-                  Country
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="transactions" currentSort={sortBy} currentOrder={sortOrder}>
-                  Transactions
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="revenue" currentSort={sortBy} currentOrder={sortOrder}>
-                  Revenue
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="joinedAt" currentSort={sortBy} currentOrder={sortOrder}>
-                  Joined
-                </SortableHeader>
-              </TableHead>
-              <TableHead>
-                <SortableHeader name="lastActive" currentSort={sortBy} currentOrder={sortOrder}>
-                  Last Active
-                </SortableHeader>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {result.data.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={10} className="h-24 text-center">
-                  No results found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              result.data.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.email}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        item.status === "active" ? "default" : item.status === "pending" ? "outline" : "secondary"
-                      }
-                    >
-                      {item.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{item.role}</TableCell>
-                  <TableCell>{item.country}</TableCell>
-                  <TableCell>{item.transactions}</TableCell>
-                  <TableCell>${item.revenue.toLocaleString()}</TableCell>
-                  <TableCell>{format(item.joinedAt, "MMM d, yyyy")}</TableCell>
-                  <TableCell>{formatDistanceToNow(item.lastActive, { addSuffix: true })}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Showing <span className="font-medium">{result.data.length}</span> of{" "}
-          <span className="font-medium">{result.total}</span> results
-        </div>
-
-        <Pagination
-          totalItems={result.total}
-          currentPage={result.page}
-          pageSize={result.pageSize}
-          onPageChange={(page) => {
-            // This is handled by the client component
-          }}
-        />
-      </div>
-    </div>
-  )
-}
-
-interface SortableHeaderProps {
-  name: string
-  currentSort: string
-  currentOrder: "asc" | "desc"
-  children: React.ReactNode
-}
-
-function SortableHeader({ name, currentSort, currentOrder, children }: SortableHeaderProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const isSorted = currentSort === name
-
-  const handleSort = () => {
-    const params = new URLSearchParams(searchParams)
-    params.set("sortBy", name)
-
-    if (isSorted) {
-      params.set("sortOrder", currentOrder === "asc" ? "desc" : "asc")
-    } else {
-      params.set("sortOrder", "asc")
-    }
-
-    router.push(`${pathname}?${params.toString()}`)
-  }
-
-  return (
-    <Button variant="ghost" onClick={handleSort} className="flex items-center gap-1 hover:bg-transparent">
-      {children}
-      {isSorted ? (
-        currentOrder === "asc" ? (
-          <ArrowUp className="ml-1 h-4 w-4" />
+        {loading ? (
+          <div className="p-4 text-center">Loading...</div>
         ) : (
-          <ArrowDown className="ml-1 h-4 w-4" />
-        )
-      ) : (
-        <ArrowUpDown className="ml-1 h-4 w-4" />
-      )}
-    </Button>
-  )
+          <Table>
+            <DataTableHeader
+              currentSort={currentSort}
+              currentOrder={currentOrder}
+              onSort={handleSort}
+            />
+            <TableBody>
+              {data.map((item) => (
+                <DataTableRow key={item.id} item={item} />
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
+      <DataTableFooter 
+        total={total} 
+        page={page} 
+        pageSize={pageSize} 
+        dataLength={data.length} 
+      />
+    </div>
+  );
 }
 
+function DataTableHeader({
+  currentSort,
+  currentOrder,
+  onSort,
+}: {
+  currentSort: string;
+  currentOrder: "asc" | "desc";
+  onSort: (name: string) => void;
+}) {
+  return (
+    <TableHeader>
+      <TableRow>
+        <SortableHeaderClient
+          name="id"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          ID
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="name"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Name
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="email"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Email
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="status"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Status
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="role"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Role
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="lastActive"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Last Active
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="joinedAt"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Joined At
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="country"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Country
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="city"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          City
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="transactions"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Transactions
+        </SortableHeaderClient>
+        <SortableHeaderClient
+          name="revenue"
+          currentSort={currentSort}
+          currentOrder={currentOrder}
+          onSort={onSort}
+        >
+          Revenue
+        </SortableHeaderClient>
+      </TableRow>
+    </TableHeader>
+  );
+}
+
+interface DataTableRowProps {
+  item: {
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+    role: string;
+    lastActive: Date;
+    joinedAt: Date;
+    country: string;
+    city: string;
+    transactions: number;
+    revenue: number;
+  };
+}
+
+function DataTableRow({ item }: DataTableRowProps) {
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{item.id}</TableCell>
+      <TableCell>{item.name}</TableCell>
+      <TableCell>{item.email}</TableCell>
+      <TableCell>{item.status}</TableCell>
+      <TableCell>{item.role}</TableCell>
+      <TableCell>{item.lastActive.toLocaleDateString()}</TableCell>
+      <TableCell>{item.joinedAt.toLocaleDateString()}</TableCell>
+      <TableCell>{item.country}</TableCell>
+      <TableCell>{item.city}</TableCell>
+      <TableCell>{item.transactions}</TableCell>
+      <TableCell>${item.revenue.toLocaleString()}</TableCell>
+    </TableRow>
+  );
+}
+
+interface DataTableFooterProps {
+  total: number;
+  page: number;
+  pageSize: number;
+  dataLength: number;
+}
+
+export function DataTableFooter({ total, page, pageSize, dataLength }: DataTableFooterProps) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="text-sm text-muted-foreground">
+        Showing <span className="font-medium">{dataLength}</span> of{" "}
+        <span className="font-medium">{total}</span> results
+      </div>
+      <PaginationClient totalItems={total} currentPage={page} pageSize={pageSize} />
+    </div>
+  );
+}

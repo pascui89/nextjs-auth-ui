@@ -33,9 +33,9 @@ export function AppHeader() {
                 Dashboard
               </Link>
               <Link
-                href="/profile"
+                href="/settings"
                 className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === "/profile" ? "text-primary" : "text-muted-foreground"
+                  pathname === "/settings" ? "text-primary" : "text-muted-foreground"
                 }`}
               >
                 Profile

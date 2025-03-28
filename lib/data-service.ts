@@ -1,21 +1,8 @@
-export interface DataItem {
-  id: string
-  name: string
-  email: string
-  status: "active" | "inactive" | "pending"
-  role: "user" | "admin" | "editor"
-  lastActive: Date
-  joinedAt: Date
-  country: string
-  city: string
-  transactions: number
-  revenue: number
-}
+import { DataItem } from "@/types/data";
 
-// Generate a large dataset of 1000+ records
 export async function generateData(count = 1000): Promise<DataItem[]> {
-  const statuses: DataItem["status"][] = ["active", "inactive", "pending"]
-  const roles: DataItem["role"][] = ["user", "admin", "editor"]
+  const statuses: DataItem["status"][] = ["active", "inactive", "pending"];
+  const roles: DataItem["role"][] = ["user", "admin", "editor"];
   const countries = [
     "United States",
     "Canada",
@@ -27,7 +14,7 @@ export async function generateData(count = 1000): Promise<DataItem[]> {
     "Brazil",
     "India",
     "China",
-  ]
+  ];
   const cities = {
     "United States": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"],
     Canada: ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa"],
@@ -39,15 +26,15 @@ export async function generateData(count = 1000): Promise<DataItem[]> {
     Brazil: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza"],
     India: ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai"],
     China: ["Beijing", "Shanghai", "Guangzhou", "Shenzhen", "Chengdu"],
-  }
+  };
 
-  const data: DataItem[] = []
+  const data: DataItem[] = [];
 
   for (let i = 0; i < count; i++) {
-    const id = `USR-${(1000 + i).toString()}`
+    const id = `USR-${(1000 + i).toString()}`;
     const firstName = ["John", "Jane", "Michael", "Emily", "David", "Sarah", "Robert", "Lisa", "William", "Emma"][
       Math.floor(Math.random() * 10)
-    ]
+    ];
     const lastName = [
       "Smith",
       "Johnson",
@@ -59,26 +46,26 @@ export async function generateData(count = 1000): Promise<DataItem[]> {
       "Garcia",
       "Rodriguez",
       "Wilson",
-    ][Math.floor(Math.random() * 10)]
-    const name = `${firstName} ${lastName}`
-    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random() * 100)}@example.com`
-    const status = statuses[Math.floor(Math.random() * statuses.length)]
-    const role = roles[Math.floor(Math.random() * roles.length)]
+    ][Math.floor(Math.random() * 10)];
+    const name = `${firstName} ${lastName}`;
+    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random() * 100)}@example.com`;
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const role = roles[Math.floor(Math.random() * roles.length)];
 
     // Random dates within the last 2 years
-    const now = new Date()
-    const twoYearsAgo = new Date()
-    twoYearsAgo.setFullYear(now.getFullYear() - 2)
+    const now = new Date();
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(now.getFullYear() - 2);
 
-    const joinedAt = new Date(twoYearsAgo.getTime() + Math.random() * (now.getTime() - twoYearsAgo.getTime()))
-    const lastActive = new Date(joinedAt.getTime() + Math.random() * (now.getTime() - joinedAt.getTime()))
+    const joinedAt = new Date(twoYearsAgo.getTime() + Math.random() * (now.getTime() - twoYearsAgo.getTime()));
+    const lastActive = new Date(joinedAt.getTime() + Math.random() * (now.getTime() - joinedAt.getTime()));
 
-    const country = countries[Math.floor(Math.random() * countries.length)]
-    const countryCities = cities[country as keyof typeof cities]
-    const city = countryCities[Math.floor(Math.random() * countryCities.length)]
+    const country = countries[Math.floor(Math.random() * countries.length)];
+    const countryCities = cities[country as keyof typeof cities];
+    const city = countryCities[Math.floor(Math.random() * countryCities.length)];
 
-    const transactions = Math.floor(Math.random() * 100)
-    const revenue = Math.round(transactions * (50 + Math.random() * 200))
+    const transactions = Math.floor(Math.random() * 100);
+    const revenue = Math.round(transactions * (50 + Math.random() * 200));
 
     data.push({
       id,
@@ -92,86 +79,81 @@ export async function generateData(count = 1000): Promise<DataItem[]> {
       city,
       transactions,
       revenue,
-    })
+    });
   }
 
-  return data
+  return data;
 }
 
 export interface DataQueryParams {
-  page: number
-  pageSize: number
-  sortBy?: string
-  sortOrder?: "asc" | "desc"
+  page: number;
+  pageSize: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
   filters?: {
-    status?: DataItem["status"][]
-    role?: DataItem["role"][]
-    country?: string[]
-    search?: string
-  }
+    status?: DataItem["status"][];
+    role?: DataItem["role"][];
+    country?: string[];
+    search?: string;
+  };
 }
 
 export interface DataQueryResult {
-  data: DataItem[]
-  total: number
-  page: number
-  pageSize: number
-  totalPages: number
+  data: DataItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }
 
-// Function to query data with pagination, sorting, and filtering
 export async function queryData(params: DataQueryParams): Promise<DataQueryResult> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 800))
+  await new Promise((resolve) => setTimeout(resolve, 800));
 
-  // Generate or fetch data
-  let data = await generateData()
-  let total = data.length
+  let data = await generateData();
+  let total = data.length;
 
-  // Apply filters
   if (params.filters) {
     if (params.filters.status && params.filters.status.length > 0) {
-      data = data.filter((item) => params.filters?.status?.includes(item.status))
+      data = data.filter((item) => params.filters?.status?.includes(item.status));
     }
 
     if (params.filters.role && params.filters.role.length > 0) {
-      data = data.filter((item) => params.filters?.role?.includes(item.role))
+      data = data.filter((item) => params.filters?.role?.includes(item.role));
     }
 
     if (params.filters.country && params.filters.country.length > 0) {
-      data = data.filter((item) => params.filters?.country?.includes(item.country))
+      data = data.filter((item) => params.filters?.country?.includes(item.country));
     }
 
     if (params.filters.search) {
-      const search = params.filters.search.toLowerCase()
+      const search = params.filters.search.toLowerCase();
       data = data.filter(
         (item) =>
           item.name.toLowerCase().includes(search) ||
           item.email.toLowerCase().includes(search) ||
           item.id.toLowerCase().includes(search),
-      )
+      );
     }
 
-    total = data.length
+    total = data.length;
   }
 
   // Apply sorting
   if (params.sortBy) {
-    const sortOrder = params.sortOrder === "desc" ? -1 : 1
+    const sortOrder = params.sortOrder === "desc" ? -1 : 1;
     data = data.sort((a, b) => {
-      const aValue = a[params.sortBy as keyof DataItem]
-      const bValue = b[params.sortBy as keyof DataItem]
+      const aValue = a[params.sortBy as keyof DataItem];
+      const bValue = b[params.sortBy as keyof DataItem];
 
-      if (aValue < bValue) return -1 * sortOrder
-      if (aValue > bValue) return 1 * sortOrder
-      return 0
-    })
+      if (aValue < bValue) return -1 * sortOrder;
+      if (aValue > bValue) return 1 * sortOrder;
+      return 0;
+    });
   }
 
-  // Apply pagination
-  const startIndex = (params.page - 1) * params.pageSize
-  const endIndex = startIndex + params.pageSize
-  const paginatedData = data.slice(startIndex, endIndex)
+  const startIndex = (params.page - 1) * params.pageSize;
+  const endIndex = startIndex + params.pageSize;
+  const paginatedData = data.slice(startIndex, endIndex);
 
   return {
     data: paginatedData,
@@ -179,17 +161,17 @@ export async function queryData(params: DataQueryParams): Promise<DataQueryResul
     page: params.page,
     pageSize: params.pageSize,
     totalPages: Math.ceil(total / params.pageSize),
-  }
+  };
 }
 
 // Get unique values for filters
 export async function getFilterOptions(): Promise<{
-  countries: string[]
-  statuses: DataItem["status"][]
-  roles: DataItem["role"][]
+  countries: string[];
+  statuses: DataItem["status"][];
+  roles: DataItem["role"][];
 }> {
   // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   return {
     countries: [
@@ -206,6 +188,5 @@ export async function getFilterOptions(): Promise<{
     ],
     statuses: ["active", "inactive", "pending"],
     roles: ["user", "admin", "editor"],
-  }
+  };
 }
-

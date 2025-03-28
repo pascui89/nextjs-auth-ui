@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/ui-kit/theme-toggle"
 import { useSession, signOut } from "next-auth/react"
-import { Home, BarChart, Database, Settings, LogOut, User } from "lucide-react"
+import { Home, BarChart, Database, LogOut, User } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -71,15 +71,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <Link href="/analytics">
                     <BarChart className="h-4 w-4" />
                     <span>Analytics</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === "/settings"}>
-                  <Link href="/settings">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
