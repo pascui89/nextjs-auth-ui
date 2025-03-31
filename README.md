@@ -35,3 +35,41 @@ A modern dashboard application built with Next.js, TypeScript, and Tailwind CSS.
 git clone https://github.com/pascui89/nextjs-auth-ui
 cd nextjs-auth-ui
 ```
+
+2. **Instala las dependencias:**
+
+   Using `npm`:
+
+   ```bash
+   npm install
+   ```
+
+   Or Using `yarn`:
+
+   ```bash
+   yarn install
+   ```
+
+3. **Ejecuta el servidor de desarrollo:**
+
+   Using `npm`:
+
+   ```bash
+   npm run dev
+   ```
+
+   Or using `yarn`:
+
+   ```bash
+   yarn dev
+   ```
+
+4. **Abre el proyecto en tu navegador:**
+
+   Go to [http://localhost:3000](http://localhost:3000).
+
+---
+
+## DEMO
+
+You can see the application running in the following url: [DEMO](https://nextjs-auth-ui-production.up.railway.app/)
