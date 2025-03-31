@@ -1,70 +1,17 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
-import { ReloadIcon } from "@radix-ui/react-icons"
-
-const passwordFormSchema = z
-  .object({
-    currentPassword: z.string().min(8, {
-      message: "Password must be at least 8 characters.",
-    }),
-    newPassword: z.string().min(8, {
-      message: "Password must be at least 8 characters.",
-    }),
-    confirmPassword: z.string().min(8, {
-      message: "Password must be at least 8 characters.",
-    }),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match.",
-    path: ["confirmPassword"],
-  })
-
-type PasswordFormValues = z.infer<typeof passwordFormSchema>
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { useSecuritySettings } from "@/components/settings/hooks/use-security-settings";
 
 export function SecuritySettings() {
-  const [isLoading, setIsLoading] = useState(false)
-
-  const form = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordFormSchema),
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  })
-
-  async function onSubmit(data: PasswordFormValues) {
-    setIsLoading(true)
-
-    try {
-      // This would typically be an API call to update the password
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Password updated",
-        description: "Your password has been updated successfully.",
-      })
-
-      form.reset()
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update password. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const {
+    state: { form, isLoading },
+    actions: { onSubmit },
+  } = useSecuritySettings();
 
   return (
     <Card>
@@ -133,6 +80,5 @@ export function SecuritySettings() {
         </form>
       </Form>
     </Card>
-  )
+  );
 }
-

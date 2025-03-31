@@ -1,35 +1,35 @@
-import { NextResponse } from "next/server"
-import { hash } from "bcryptjs"
-import { PrismaClient } from "@prisma/client"
-import { z } from "zod"
+import { NextResponse } from "next/server";
+import { hash } from "bcryptjs";
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const userSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(8),
-})
+});
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
+    const body = await req.json();
 
-    const { name, email, password } = userSchema.parse(body)
+    const { name, email, password } = userSchema.parse(body);
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: {
         email,
       },
-    })
+    });
 
     if (existingUser) {
-      return NextResponse.json({ message: "User with this email already exists" }, { status: 409 })
+      return NextResponse.json({ message: "User with this email already exists" }, { status: 409 });
     }
 
     // Hash password
-    const hashedPassword = await hash(password, 10)
+    const hashedPassword = await hash(password, 10);
 
     // Create user
     const user = await prisma.user.create({
@@ -38,25 +38,24 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
       },
-    })
+    });
 
     // Return user without password
-    const { password: _, ...userWithoutPassword } = user
+    const { password: userWithoutPassword } = user;
 
     return NextResponse.json(
       {
         message: "User created successfully",
-        user: userWithoutPassword,
+        user: userWithoutPassword, // Solo devolvemos el objeto sin la contraseña
       },
       { status: 201 },
-    )
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ message: "Invalid input data", errors: error.errors }, { status: 400 })
+      return NextResponse.json({ message: "Invalid input data", errors: error.errors }, { status: 400 });
     }
 
-    console.error("Registration error:", error)
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 })
+    console.error("Registration error:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }
-

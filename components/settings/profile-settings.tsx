@@ -1,86 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useSession } from "next-auth/react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
-import { ReloadIcon } from "@radix-ui/react-icons"
-
-const profileFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(30, {
-      message: "Name must not be longer than 30 characters.",
-    }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  bio: z
-    .string()
-    .max(160, {
-      message: "Bio must not be longer than 160 characters.",
-    })
-    .optional(),
-})
-
-type ProfileFormValues = z.infer<typeof profileFormSchema>
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { useProfileSettings } from "@/components/settings/hooks/use-profile-settings";
 
 export function ProfileSettings() {
-  const { data: session, update } = useSession()
-  const [isLoading, setIsLoading] = useState(false)
-
-  const defaultValues: Partial<ProfileFormValues> = {
-    name: session?.user?.name || "",
-    email: session?.user?.email || "",
-    bio: "",
-  }
-
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues,
-  })
-
-  async function onSubmit(data: ProfileFormValues) {
-    setIsLoading(true)
-
-    try {
-      // This would typically be an API call to update the user profile
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Update the session
-      await update({
-        ...session,
-        user: {
-          ...session?.user,
-          name: data.name,
-          email: data.email,
-        },
-      })
-
-      toast({
-        title: "Profile updated",
-        description: "Your profile has been updated successfully.",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const {
+    state: { form, isLoading },
+    actions: { onSubmit },
+  } = useProfileSettings();
 
   return (
     <Card>
@@ -151,6 +83,5 @@ export function ProfileSettings() {
         </form>
       </Form>
     </Card>
-  )
+  );
 }
-

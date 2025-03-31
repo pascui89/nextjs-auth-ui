@@ -1,11 +1,11 @@
 "use client"
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
-import { SignInForm } from "@/components/auth/sign-in-form"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { SignInForm } from "@/components/auth/sign-in-form";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import "@testing-library/jest-dom";
 
-// Mock the modules
 jest.mock("next-auth/react", () => ({
   signIn: jest.fn(),
 }))
@@ -18,14 +18,12 @@ describe("SignInForm", () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    // Setup router mock
     const mockRouter = {
       push: jest.fn(),
       refresh: jest.fn(),
     }
     ;(useRouter as jest.Mock).mockReturnValue(mockRouter)
 
-    // Setup signIn mock
     ;(signIn as jest.Mock).mockResolvedValue({ error: null })
   })
 

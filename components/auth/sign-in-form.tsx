@@ -1,59 +1,17 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ReloadIcon } from "@radix-ui/react-icons"
-
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-})
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ReloadIcon } from "@radix-ui/react-icons";
+import { useSignInForm } from "@/components/auth/hooks/use-sign-in-form";
 
 export function SignInForm() {
-  const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const result = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false,
-      })
-
-      if (result?.error) {
-        setError("Invalid email or password")
-        setIsLoading(false)
-        return
-      }
-
-      router.push("/dashboard")
-      router.refresh()
-    } catch (error) {
-      setError("An unexpected error occurred. Please try again.")
-      setIsLoading(false)
-    }
-  }
+  const {
+    state: { form, error, isLoading },
+    actions: { onSubmit },
+  } = useSignInForm();
 
   return (
     <Form {...form}>
@@ -101,6 +59,5 @@ export function SignInForm() {
         </Button>
       </form>
     </Form>
-  )
+  );
 }
-

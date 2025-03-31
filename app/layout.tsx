@@ -13,11 +13,14 @@ export const metadata: Metadata = {
   title: "Next.js Dashboard",
   description: "A modern dashboard built with Next.js, TypeScript, and Tailwind CSS",
   viewport: "width=device-width, initial-scale=1",
+  generator: "v0.dev",
+}
+
+export const viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "#111" },
   ],
-    generator: 'v0.dev'
 }
 
 export default async function RootLayout({
@@ -42,7 +45,3 @@ export default async function RootLayout({
     </html>
   )
 }
-
-
-
-import './globals.css'
