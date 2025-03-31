@@ -15,6 +15,7 @@ const customJestConfig = {
     "^@/hooks/(.*)$": "<rootDir>/hooks/$1",
   },
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/", "<rootDir>/cypress/"],
+  testMatch: ["<rootDir>/__tests__/**/*.(test|spec).(js|jsx|ts|tsx)"]
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
