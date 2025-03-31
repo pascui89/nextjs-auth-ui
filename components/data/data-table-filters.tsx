@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,8 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDebounce } from "@/hooks/use-debounce";
 import { Filter, X } from "lucide-react";
+import { useDataTableFilters } from "@/components/data/hooks/use-data-table-filters";
 
 interface DataTableFiltersProps {
   filterOptions: {
@@ -25,83 +23,10 @@ interface DataTableFiltersProps {
 }
 
 export function DataTableFilters({ filterOptions }: DataTableFiltersProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Get current filter values from URL
-  const currentStatusFilters = searchParams.getAll("status");
-  const currentRoleFilters = searchParams.getAll("role");
-  const currentCountryFilters = searchParams.getAll("country");
-  const currentSearch = searchParams.get("search") || "";
-  const currentPageSize = searchParams.get("pageSize") || "10";
-
-  // Local state for filters
-  const [statusFilters, setStatusFilters] = useState<string[]>(currentStatusFilters);
-  const [roleFilters, setRoleFilters] = useState<string[]>(currentRoleFilters);
-  const [countryFilters, setCountryFilters] = useState<string[]>(currentCountryFilters);
-  const [search, setSearch] = useState(currentSearch);
-  const [pageSize, setPageSize] = useState(currentPageSize);
-
-  // Debounce search input
-  const debouncedSearch = useDebounce(search, 300);
-
-  // Update URL when filters change
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-
-    // Reset to page 1 when filters change
-    params.set("page", "1");
-
-    // Update search param
-    if (debouncedSearch) {
-      params.set("search", debouncedSearch);
-    } else {
-      params.delete("search");
-    }
-
-    // Update page size
-    params.set("pageSize", pageSize);
-
-    router.push(`${pathname}?${params.toString()}`);
-  }, [debouncedSearch, pageSize, pathname, router, searchParams]);
-
-  // Apply filters function
-  const applyFilters = () => {
-    const params = new URLSearchParams(searchParams);
-
-    // Reset to page 1
-    params.set("page", "1");
-
-    // Clear existing filters
-    params.delete("status");
-    params.delete("role");
-    params.delete("country");
-
-    // Add new filters
-    statusFilters.forEach((status) => params.append("status", status));
-    roleFilters.forEach((role) => params.append("role", role));
-    countryFilters.forEach((country) => params.append("country", country));
-
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
-  // Reset filters
-  const resetFilters = () => {
-    setStatusFilters([]);
-    setRoleFilters([]);
-    setCountryFilters([]);
-    setSearch("");
-
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    params.set("pageSize", pageSize);
-
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
-  // Check if any filters are applied
-  const hasFilters = statusFilters.length > 0 || roleFilters.length > 0 || countryFilters.length > 0 || search;
+  const {
+    state: { statusFilters, roleFilters, countryFilters, search, pageSize, hasFilters },
+    actions: { setStatusFilters, setRoleFilters, setCountryFilters, setSearch, setPageSize, applyFilters, resetFilters },
+  } = useDataTableFilters(filterOptions);
 
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

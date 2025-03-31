@@ -1,16 +1,16 @@
-// components/data/pagination-client.tsx
-"use client"
+"use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Pagination } from "@/components/ui-kit/pagination";
 
 interface PaginationClientProps {
-    totalItems: number;
-    currentPage: number;
-    pageSize: number;
-  }
+  totalItems: number;
+  currentPage: number;
+  pageSize: number;
+  onPageChange?: (page: number) => void;
+}
 
-export function PaginationClient({ totalItems, currentPage, pageSize }: PaginationClientProps) {
+export function PaginationClient({ totalItems, currentPage, pageSize, onPageChange }: PaginationClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -19,7 +19,11 @@ export function PaginationClient({ totalItems, currentPage, pageSize }: Paginati
     const params = new URLSearchParams(searchParams);
     params.set("page", page.toString());
     router.push(`${pathname}?${params.toString()}`);
-  }
+
+    if (onPageChange) {
+      onPageChange(page);
+    }
+  };
 
   return (
     <Pagination
@@ -28,5 +32,5 @@ export function PaginationClient({ totalItems, currentPage, pageSize }: Paginati
       pageSize={pageSize}
       onPageChange={handlePageChange}
     />
-  )
+  );
 }

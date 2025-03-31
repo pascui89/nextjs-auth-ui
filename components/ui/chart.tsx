@@ -1,28 +1,30 @@
-import type * as React from "react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import type * as React from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+interface PayloadItem {
+  name?: string;
+  value: number;
+}
 
 interface ChartTooltipContentProps {
-  label?: string
-  valueFormatter?: (value: number) => string
-  itemFormatter?: (item: any) => string
-  payload?: any
+  label?: string;
+  valueFormatter?: (value: number) => string;
+  payload?: PayloadItem[];
 }
 
 function ChartTooltipContent({
   label,
   valueFormatter = (value) => value.toLocaleString(),
-  itemFormatter,
   payload,
 }: ChartTooltipContentProps) {
   if (!payload || payload.length === 0) {
-    return null
+    return null;
   }
 
   return (
     <div className="rounded-md border bg-popover p-4 text-popover-foreground shadow-sm">
       {label ? <div className="text-sm font-medium capitalize">{label}</div> : null}
       <ul className="mt-2 space-y-1">
-        {payload.map((item: any, index: number) => (
+        {payload.map((item, index) => (
           <li key={index} className="flex items-center justify-between text-xs">
             <span className="mr-2">{item.name || "Value"}:</span>
             <span>{valueFormatter(item.value)}</span>
@@ -30,11 +32,11 @@ function ChartTooltipContent({
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
 interface ChartTooltipProps {
-  content: React.ReactNode
+  content: React.ReactNode;
 }
 
 function ChartTooltip({ content }: ChartTooltipProps) {
@@ -47,31 +49,23 @@ function ChartTooltip({ content }: ChartTooltipProps) {
         <TooltipContent sideOffset={8}>{content}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  )
+  );
 }
 
 interface ChartContainerProps {
-  data: any[]
-  children: React.ReactNode
-  valueFormatter?: (value: number) => string
+  children: React.ReactNode;
 }
 
-export function ChartContainer({ data, children, valueFormatter }: ChartContainerProps) {
-  return (
-    <Chart data={data} valueFormatter={valueFormatter}>
-      {children}
-    </Chart>
-  )
+export function ChartContainer({ children }: ChartContainerProps) {
+  return <Chart>{children}</Chart>;
 }
 
 interface ChartProps {
-  data: any[]
-  children: React.ReactNode
-  valueFormatter?: (value: number) => string
+  children: React.ReactNode;
 }
 
-export function Chart({ data, children, valueFormatter }: ChartProps) {
-  return <>{children}</>
+export function Chart({ children }: ChartProps) {
+  return <>{children}</>;
 }
 
-export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, ChartTooltipContent, ChartTooltip }
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, ChartTooltipContent, ChartTooltip };
